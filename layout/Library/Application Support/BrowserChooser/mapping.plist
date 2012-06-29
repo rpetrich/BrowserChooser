@@ -36,3 +36,11 @@
   http = "mammoth4://http";
   https = "mammoth4://https";
 };
+"com.cloudmosa.puffinfree" = {
+  http = puffin;
+  https = puffins;
+};
+"com.cloudmosa.puffin" = {
+  http = puffin;
+  https = puffins;
+};
