@@ -85,7 +85,7 @@ __attribute__((visibility("hidden")))
 		actionSheet.delegate = self;
 		for (NSString *key in _orderedDisplayIdentifiers)
 			[_actionSheet addButtonWithTitle:[_displayIdentifierTitles objectForKey:key]];
-		actionSheet.cancelButtonIndex = [actionSheet addButtonWithTitle:@"Cancel"];
+		NSInteger cancelButtonIndex = [actionSheet addButtonWithTitle:@"Cancel"];
 		if (!_alertWindow) {
 			_alertWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
 			_alertWindow.windowLevel = 1050.1f /*UIWindowLevelStatusBar*/;
@@ -95,8 +95,12 @@ __attribute__((visibility("hidden")))
 		if ([_alertWindow respondsToSelector:@selector(_updateToInterfaceOrientation:animated:)])
 			[_alertWindow _updateToInterfaceOrientation:[(SpringBoard *)UIApp _frontMostAppOrientation] animated:NO];
 		if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad) {
-			[actionSheet showFromRect:self.view.bounds inView:self.view animated:YES];
+			CGRect bounds = self.view.bounds;
+			bounds.origin.y += bounds.size.height;
+			bounds.size.height = 0.0f;
+			[actionSheet showFromRect:bounds inView:self.view animated:YES];
 		} else {
+			actionSheet.cancelButtonIndex = cancelButtonIndex;
 			[actionSheet showInView:self.view];
 		}
 	}
@@ -105,7 +109,7 @@ __attribute__((visibility("hidden")))
 - (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
 {
 	[self retain];
-	if (buttonIndex >= 0 && buttonIndex != actionSheet.cancelButtonIndex) {
+	if (buttonIndex >= 0 && buttonIndex != actionSheet.cancelButtonIndex && buttonIndex < [_orderedDisplayIdentifiers count]) {
 		NSURL *adjustedURL = BCApplySchemeReplacementForDisplayIdentifierOnURL([_orderedDisplayIdentifiers objectAtIndex:buttonIndex], _url);
 		suppressed++;
 		[(SpringBoard *)UIApp applicationOpenURL:adjustedURL publicURLsOnly:NO animating:YES sender:_sender additionalActivationFlag:_additionalActivationFlag];
