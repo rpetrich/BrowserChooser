@@ -13,7 +13,7 @@ entry = {
   ALSectionDescriptors = (
   	{
   	  title = "Default Browser";
-  	  predicate = "displayIdentifier IN { 'com.apple.mobilesafari', 'com.google.chrome.ios', 'de.icab.iCabMobile', 'com.opera.OperaMini', 'com.dolphin.browser.iphone', 'com.trautvetter.atomicbrowserLite', 'com.diigo.iChrome', 'jp.co.lunascape.iLunascape', 'com.hugehard.MammothIVLite', 'com.hugehard.MammothIV', 'com.cloudmosa.puffinfree', 'com.cloudmosa.puffin' }";
+  	  predicate = "displayIdentifier IN { 'com.apple.mobilesafari', 'com.google.chrome.ios', 'de.icab.iCabMobile', 'com.opera.OperaMini', 'com.dolphin.browser.iphone', 'com.trautvetter.atomicbrowserLite', 'com.diigo.iChrome', 'jp.co.lunascape.iLunascape', 'com.hugehard.MammothIVLite', 'com.hugehard.MammothIV', 'com.cloudmosa.puffinfree', 'com.cloudmosa.puffin', 'com.ilegendsoft.MBrowser' }";
   	  "cell-class-name" = "ALCheckCell";
   	  "icon-size" = 29;
       "footer-title" = "© 2012 Ryan Petrich";

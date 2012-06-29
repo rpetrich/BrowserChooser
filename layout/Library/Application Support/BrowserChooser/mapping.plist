@@ -44,3 +44,6 @@
   http = puffin;
   https = puffins;
 };
+"com.ilegendsoft.MBrowser" = {
+  http = merc;
+};
