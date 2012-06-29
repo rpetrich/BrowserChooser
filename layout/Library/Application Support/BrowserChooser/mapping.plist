@@ -45,3 +45,5 @@
 "com.ilegendsoft.MBrowser" = {
   http = "merc_free";
 };
+"com.apple.mobilesafari" = {
+};
