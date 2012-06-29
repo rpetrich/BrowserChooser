@@ -1,0 +1,22 @@
+entry = {
+  bundle = AppList;
+  cell = PSLinkCell;
+  icon = "/Applications/Preferences.app/Safari.png";
+  isController = 1;
+  label = BrowserChooser;
+  ALSettingsPath = "/var/mobile/Library/Preferences/com.rpetrich.browserchooser.plist";
+  ALSettingsKey = "BCActiveDisplayIdentifier";
+  ALChangeNotification = "com.rpetrich.browserchanger.settingschanged";
+  ALSingleEnabledMode = 1;
+  ALSettingsDefaultValue = "com.apple.Safari";
+  ALAlwaysSelected = 1;
+  ALSectionDescriptors = (
+  	{
+  	  title = "Default Browser";
+  	  predicate = "displayIdentifier IN { 'com.apple.mobilesafari', 'com.google.chrome.ios', 'de.icab.iCabMobile', 'com.opera.OperaMini', 'com.dolphin.browser.iphone', 'com.trautvetter.atomicbrowserLite' }";
+  	  "cell-class-name" = "ALCheckCell";
+  	  "icon-size" = 29;
+      "footer-title" = "© 2012 Ryan Petrich";
+  	}
+  );
+};

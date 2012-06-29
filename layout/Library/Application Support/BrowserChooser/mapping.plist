@@ -1,0 +1,22 @@
+"com.google.chrome.ios" = {
+  http = googlechrome;
+  https = googlechromes;
+};
+"de.icab.iCabMobile" = {
+  http = web;
+  https = webs;
+};
+"com.ilegendsoft.MBrowser" = {
+  http = merc_free;
+};
+"com.opera.OperaMini" = {
+  http = ohttp;
+  https = ohttps;
+  ftp = oftp;
+};
+"com.dolphin.browser.iphone" = {
+  http = dolphin;
+};
+"com.trautvetter.atomicbrowserLite" = {
+  http = atomiclite;
+};
