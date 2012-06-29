@@ -7,6 +7,10 @@
 - (BOOL)appleStoreURL;
 @end
 
+@interface SpringBoard (iOS5)
+- (void)applicationOpenURL:(NSURL *)url publicURLsOnly:(BOOL)only animating:(BOOL)animating sender:(id)sender additionalActivationFlag:(unsigned)additionalActivationFlag;
+@end
+
 static NSDictionary *schemeMapping;
 static NSInteger suppressed;
 
@@ -54,7 +58,7 @@ __attribute__((visibility("hidden")))
 
 @implementation BCChooserViewController
 
-- (id)initWithURL:(NSURL *)url originalSender:(id)sender additionalActivationFlag:additionalActivationFlag
+- (id)initWithURL:(NSURL *)url originalSender:(id)sender additionalActivationFlag:(unsigned)additionalActivationFlag
 {
 	if ((self = [super init])) {
 		_url = [url retain];
