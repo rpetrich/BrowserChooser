@@ -29,12 +29,10 @@
   https = ilunascapes;
 };
 "com.hugehard.MammothIVLite" = {
-  http = "mammoth4lite://http";
-  https = "mammoth4lite://https";
+  http = mammoth4lite;
 };
 "com.hugehard.MammothIV" = {
-  http = "mammoth4://http";
-  https = "mammoth4://https";
+  http = mammoth4;
 };
 "com.cloudmosa.puffinfree" = {
   http = puffin;
@@ -45,5 +43,5 @@
   https = puffins;
 };
 "com.ilegendsoft.MBrowser" = {
-  http = merc;
+  http = "merc_free";
 };
