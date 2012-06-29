@@ -20,3 +20,7 @@
 "com.trautvetter.atomicbrowserLite" = {
   http = atomiclite;
 };
+"com.diigo.iChrome" = {
+  http = "ichromy://http";
+  http = "ichromy://https";
+};
