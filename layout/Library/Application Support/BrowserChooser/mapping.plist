@@ -28,3 +28,11 @@
   http = ilunascape;
   https = ilunascapes;
 };
+"com.hugehard.MammothIVLite" = {
+  http = "mammoth4lite://http";
+  https = "mammoth4lite://https";
+};
+"com.hugehard.MammothIV" = {
+  http = "mammoth4://http";
+  https = "mammoth4://https";
+};
