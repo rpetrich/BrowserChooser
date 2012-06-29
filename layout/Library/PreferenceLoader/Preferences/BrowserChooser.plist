@@ -8,15 +8,13 @@ entry = {
   ALSettingsKey = "BCActiveDisplayIdentifier";
   ALChangeNotification = "com.rpetrich.browserchanger.settingschanged";
   ALSingleEnabledMode = 1;
-  ALSettingsDefaultValue = "com.apple.Safari";
-  ALAlwaysSelected = 1;
   ALSectionDescriptors = (
   	{
   	  title = "Default Browser";
-  	  predicate = "displayIdentifier IN { 'com.apple.mobilesafari', 'com.google.chrome.ios', 'de.icab.iCabMobile', 'com.opera.OperaMini', 'com.dolphin.browser.iphone', 'com.trautvetter.atomicbrowserLite', 'com.diigo.iChrome', 'jp.co.lunascape.iLunascape', 'com.hugehard.MammothIVLite', 'com.hugehard.MammothIV', 'com.cloudmosa.puffinfree', 'com.cloudmosa.puffin', 'com.ilegendsoft.MBrowser' }";
+  	  predicate = "isBrowserChooserBrowser = TRUE";
   	  "cell-class-name" = "ALCheckCell";
   	  "icon-size" = 29;
-      "footer-title" = "© 2012 Ryan Petrich";
+      "footer-title" = "Leaving no browser selected will allow choosing the browser from a popup menu when a URL is activated.\n\n© 2012 Ryan Petrich";
   	}
   );
 };
