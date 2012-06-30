@@ -23,10 +23,13 @@ static inline NSString *BCActiveDisplayIdentifier(void)
 static inline NSString *BCReplaceSafariWordInText(NSString *text)
 {
 	if (text && [text rangeOfString:@"Safari"].location != NSNotFound) {
-		NSString *displayIdentifier = BCActiveDisplayIdentifier();
-		NSString *newAppName = displayIdentifier ? [[ALApplicationList sharedApplicationList].applications objectForKey:displayIdentifier] : @"Browser";
-		if ([newAppName length]) {
-			return [text stringByReplacingOccurrencesOfString:@"Safari" withString:newAppName];
+		// Because Flipboard inspects the button text, we ignore in this app
+		if (![[NSBundle mainBundle].bundleIdentifier isEqualToString:@"com.flipboard.flipboard-ipad"]) {
+			NSString *displayIdentifier = BCActiveDisplayIdentifier();
+			NSString *newAppName = displayIdentifier ? [[ALApplicationList sharedApplicationList].applications objectForKey:displayIdentifier] : @"Browser";
+			if ([newAppName length]) {
+				return [text stringByReplacingOccurrencesOfString:@"Safari" withString:newAppName];
+			}
 		}
 	}
 	return text;
