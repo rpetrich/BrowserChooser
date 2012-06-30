@@ -1,4 +1,5 @@
 #import <SpringBoard/SpringBoard.h>
+#import <UIKit/UIKit2.h>
 #import <AppList/ALApplicationList.h>
 
 @interface NSURL (iOS5)
@@ -150,6 +151,20 @@ __attribute__((visibility("hidden")))
 - (BOOL)isBrowserChooserBrowser
 {
 	return [schemeMapping objectForKey:self.displayIdentifier] != nil;
+}
+
+%end
+
+%hook SBBookmarkIcon
+
+- (void)launch
+{
+	UIWebClip *webClip = [self webClip];
+	NSURL *url = webClip.pageURL;
+	if (BCURLPassesPrefilter(url))
+		[(SpringBoard *)UIApp applicationOpenURL:url publicURLsOnly:NO animating:YES sender:nil additionalActivationFlag:0];
+	else
+		%orig;
 }
 
 %end
