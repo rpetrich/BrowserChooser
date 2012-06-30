@@ -189,6 +189,25 @@ __attribute__((visibility("hidden")))
 	%orig(BCReplaceSafariWordInText(title));
 }
 
+- (void)setTitle:(NSString *)title
+{
+	%orig(BCReplaceSafariWordInText(title));
+}
+
+- (void)setMessage:(NSString *)message
+{
+	%orig(BCReplaceSafariWordInText(message));
+}
+
+%end
+
+%hook UIButton
+
+- (void)setTitle:(NSString *)title forState:(UIControlState)state
+{
+	%orig(BCReplaceSafariWordInText(title), state);
+}
+
 %end
 
 %end
