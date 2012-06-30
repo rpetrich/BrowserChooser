@@ -157,7 +157,7 @@ __attribute__((visibility("hidden")))
 		NSString *displayIdentifier = BCActiveDisplayIdentifier();
 		if (displayIdentifier)
 			url = BCApplySchemeReplacementForDisplayIdentifierOnURL(displayIdentifier, url);
-		else {
+		else if ([url.scheme hasPrefix:@"http"]) {
 			BCChooserViewController *vc = [[BCChooserViewController alloc] initWithURL:url originalSender:sender additionalActivationFlag:additionalActivationFlag];
 			[vc show];
 			[vc release];
