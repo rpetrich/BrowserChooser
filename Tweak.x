@@ -43,6 +43,11 @@ static inline NSURL *BCApplySchemeReplacementForDisplayIdentifierOnURL(NSString 
 	return url;
 }
 
+static inline BOOL BCURLPassesPrefilter(NSURL *url)
+{
+	return ![url isStoreServicesURL] && ![url isWebcalURL] && ![url mapsURL] && ![url youTubeURL] && ![url gamecenterURL] && ![url appleStoreURL];
+}
+
 __attribute__((visibility("hidden")))
 @interface BCChooserViewController : UIViewController <UIActionSheetDelegate> {
 @private
@@ -153,7 +158,7 @@ __attribute__((visibility("hidden")))
 
 - (void)applicationOpenURL:(NSURL *)url publicURLsOnly:(BOOL)only animating:(BOOL)animating sender:(id)sender additionalActivationFlag:(unsigned)additionalActivationFlag
 {
-	if (!suppressed && ![url isStoreServicesURL] && ![url isWebcalURL] && ![url mapsURL] && ![url youTubeURL] && ![url gamecenterURL] && ![url appleStoreURL]) {
+	if (!suppressed && BCURLPassesPrefilter(url)) {
 		NSString *displayIdentifier = BCActiveDisplayIdentifier();
 		if (displayIdentifier)
 			url = BCApplySchemeReplacementForDisplayIdentifierOnURL(displayIdentifier, url);
