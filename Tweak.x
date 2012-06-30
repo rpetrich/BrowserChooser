@@ -14,6 +14,7 @@
 
 static NSDictionary *schemeMapping;
 static NSInteger suppressed;
+static CGPoint lastTapCentroid;
 
 static inline NSString *BCActiveDisplayIdentifier(void)
 {
@@ -75,6 +76,7 @@ __attribute__((visibility("hidden")))
 		_additionalActivationFlag = additionalActivationFlag;
 		_displayIdentifierTitles = [[[ALApplicationList sharedApplicationList] applicationsFilteredUsingPredicate:[NSPredicate predicateWithFormat:@"isBrowserChooserBrowser = TRUE"]] copy];
 		_orderedDisplayIdentifiers = [[_displayIdentifierTitles allKeys] retain];
+		self.wantsFullScreenLayout = YES;
 	}
 	return self;
 }
@@ -108,9 +110,18 @@ __attribute__((visibility("hidden")))
 		if ([_alertWindow respondsToSelector:@selector(_updateToInterfaceOrientation:animated:)])
 			[_alertWindow _updateToInterfaceOrientation:[(SpringBoard *)UIApp _frontMostAppOrientation] animated:NO];
 		if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad) {
-			CGRect bounds = self.view.bounds;
-			bounds.origin.y += bounds.size.height;
-			bounds.size.height = 0.0f;
+			CGRect bounds;
+			if ((lastTapCentroid.x == 0.0f) || (lastTapCentroid.y == 0.0f) || isnan(lastTapCentroid.x) || isnan(lastTapCentroid.y)) {
+				bounds = self.view.bounds;
+				bounds.origin.y += bounds.size.height;
+				bounds.size.height = 0.0f;
+			} else {
+				bounds.origin.x = lastTapCentroid.x - 1.0f;
+				bounds.origin.y = lastTapCentroid.y - 1.0f;
+				bounds.size.width = 2.0f;
+				bounds.size.height = 2.0f;
+			}
+			NSLog(@"rect=%@", NSStringFromCGRect(bounds));
 			[actionSheet showFromRect:bounds inView:self.view animated:YES];
 		} else {
 			actionSheet.cancelButtonIndex = cancelButtonIndex;
@@ -187,6 +198,17 @@ __attribute__((visibility("hidden")))
 			return;
 		}
 	}
+	%orig;
+}
+
+%end
+
+%hook SBHandMotionExtractor
+
+- (void)extractHandMotionForActiveTouches:(void *)activeTouches count:(NSUInteger)count centroid:(CGPoint)centroid
+{
+	if (count && !isnan(centroid.x) && !isnan(centroid.y))
+		lastTapCentroid = centroid;
 	%orig;
 }
 
