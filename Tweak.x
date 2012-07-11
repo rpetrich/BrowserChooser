@@ -121,7 +121,6 @@ __attribute__((visibility("hidden")))
 				bounds.size.width = 2.0f;
 				bounds.size.height = 2.0f;
 			}
-			NSLog(@"rect=%@", NSStringFromCGRect(bounds));
 			[actionSheet showFromRect:bounds inView:self.view animated:YES];
 		} else {
 			actionSheet.cancelButtonIndex = cancelButtonIndex;
