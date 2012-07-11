@@ -17,6 +17,9 @@
 "com.dolphin.browser.iphone" = {
   http = dolphin;
 };
+"com.dolphin.browser.ipad" = {
+  http = dolphin;
+};
 "com.trautvetter.atomicbrowserLite" = {
   http = atomiclite;
 };
