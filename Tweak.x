@@ -41,9 +41,21 @@ static inline NSURL *BCApplySchemeReplacementForDisplayIdentifierOnURL(NSString 
 	NSDictionary *identifierMapping = [schemeMapping objectForKey:displayIdentifier];
 	if (identifierMapping) {
 		NSString *oldScheme = [url.scheme lowercaseString];
+		NSString *absoluteString;
+		if ([oldScheme isEqualToString:@"x-web-search"]) {
+			oldScheme = @"http";
+			if ([[url host] isEqualToString:@"wikipedia"]) {
+				absoluteString = @"http://en.m.wikipedia.org/?search=";
+			} else {
+				absoluteString = @"http://www.google.com/search?q=";
+			}
+			absoluteString = [absoluteString stringByAppendingString:[url query]];
+		} else {
+			absoluteString = [url absoluteString];
+		}
 		NSString *newScheme = [identifierMapping objectForKey:oldScheme];
 		if (newScheme)
-			url = [NSURL URLWithString:[newScheme stringByAppendingString:[url.absoluteString substringFromIndex:oldScheme.length]]];
+			url = [NSURL URLWithString:[newScheme stringByAppendingString:[absoluteString substringFromIndex:oldScheme.length]]];
 	}
 	return url;
 }
@@ -190,11 +202,14 @@ __attribute__((visibility("hidden")))
 		NSString *displayIdentifier = BCActiveDisplayIdentifier();
 		if (displayIdentifier)
 			url = BCApplySchemeReplacementForDisplayIdentifierOnURL(displayIdentifier, url);
-		else if ([url.scheme hasPrefix:@"http"]) {
-			BCChooserViewController *vc = [[BCChooserViewController alloc] initWithURL:url originalSender:sender additionalActivationFlag:additionalActivationFlag];
-			[vc show];
-			[vc release];
-			return;
+		else {
+			NSString *scheme = url.scheme;
+			if ([scheme hasPrefix:@"http"] || [scheme isEqualToString:@"x-web-search"]) {
+				BCChooserViewController *vc = [[BCChooserViewController alloc] initWithURL:url originalSender:sender additionalActivationFlag:additionalActivationFlag];
+				[vc show];
+				[vc release];
+				return;
+			}
 		}
 	}
 	%orig;
