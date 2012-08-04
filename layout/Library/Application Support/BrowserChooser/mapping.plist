@@ -51,5 +51,9 @@
 "com.ilegendsoft.MBrowser" = {
   http = "merc_free";
 };
+"com.ispirations.Cobium" = {
+  http = cobium;
+  https: cobiums;
+};
 "com.apple.mobilesafari" = {
 };
