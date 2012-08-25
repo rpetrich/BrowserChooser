@@ -55,11 +55,13 @@ static inline NSURL *BCApplySchemeReplacementForDisplayIdentifierOnURL(NSString 
 		}
 		NSString *newScheme = [identifierMapping objectForKey:oldScheme];
 		BOOL encoded = [[identifierMapping objectForKey:@"encoded"] boolValue];
-		if (newScheme && !encoded)
-			url = [NSURL URLWithString:[newScheme stringByAppendingString:[absoluteString substringFromIndex:oldScheme.length]]];
-		else if (newScheme && encoded){
-			NSString *encodedString = [(NSString *)CFURLCreateStringByAddingPercentEscapes(NULL,(CFStringRef)[absoluteString substringFromIndex:oldScheme.length], NULL,CFSTR(":/=,!$& '()*+;[]@#?"),kCFStringEncodingUTF8) autorelease];
-			url = [NSURL URLWithString:[newScheme stringByAppendingString:encodedString]];
+		if (newScheme){
+			if (!encoded)
+				url = [NSURL URLWithString:[newScheme stringByAppendingString:[absoluteString substringFromIndex:oldScheme.length]]];
+			else {
+				NSString *encodedString = [(NSString *)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,(CFStringRef)[absoluteString substringFromIndex:oldScheme.length], NULL,CFSTR(":/=,!$& '()*+;[]@#?"),kCFStringEncodingUTF8) autorelease];
+				url = [NSURL URLWithString:[newScheme stringByAppendingString:encodedString]];
+			}
 		}
 	}
 	return url;
