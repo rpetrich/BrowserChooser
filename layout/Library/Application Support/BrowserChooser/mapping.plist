@@ -1,59 +1,82 @@
 "com.google.chrome.ios" = {
   http = googlechrome;
   https = googlechromes;
+  encoded = false;
 };
 "de.icab.iCabMobile" = {
   http = web;
   https = webs;
+  encoded = false;
 };
 "com.ilegendsoft.MBrowser" = {
   http = merc_free;
+  encoded = false;
 };
 "com.opera.OperaMini" = {
   http = ohttp;
   https = ohttps;
   ftp = oftp;
+  encoded = false;
 };
 "com.dolphin.browser.iphone" = {
   http = dolphin;
+  encoded = false;
 };
 "com.dolphin.browser.ipad" = {
   http = dolphin;
+  encoded = false;
 };
 "com.trautvetter.atomicbrowserLite" = {
   http = atomiclite;
+  encoded = false;
 };
 "com.trautvetter.atomicbrowser" = {
   http = atomic;
+  encoded = false;
 };
 "com.diigo.iChrome" = {
   http = "ichromy://http";
   https = "ichromy://https";
+  encoded = false;
 };
 "jp.co.lunascape.iLunascape" = {
   http = ilunascape;
   https = ilunascapes;
+  encoded = false;
 };
 "com.hugehard.MammothIVLite" = {
   http = mammoth4lite;
+  encoded = false;
 };
 "com.hugehard.MammothIV" = {
   http = mammoth4;
+  encoded = false;
 };
 "com.cloudmosa.puffinfree" = {
   http = puffin;
   https = puffins;
+  encoded = false;
 };
 "com.cloudmosa.puffin" = {
   http = puffin;
   https = puffins;
+  encoded = false;
 };
 "com.ilegendsoft.MBrowser" = {
   http = "merc_free";
+  encoded = false;
 };
 "com.ispirations.Cobium" = {
   http = cobium;
   https: cobiums;
+  encoded = false;
 };
+"org.coolstar.browser" = {
+  http = "csbrowser://http%3A%2F%2F"
+  https = "csbrowser://https%3A%2F%2F"
+  ftp = "csbrowser://ftp%3A%2F%2F"
+  file = "csbrowser://file%3A%2F%2F"
+  encoded = true;
+}
 "com.apple.mobilesafari" = {
 };
