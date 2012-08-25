@@ -1,3 +1,6 @@
 [submodule "framework"]
 	path = framework
 	url = git://github.com/rpetrich/theos.git
+[submodule "AppList"]
+	path = AppList
+	url = git://github.com/rpetrich/AppList.git
