@@ -16,6 +16,10 @@
 - (void)applicationOpenURL:(NSURL *)url withApplication:(id)application sender:(id)sender publicURLsOnly:(BOOL)publicURLsOnly animating:(BOOL)animating needsPermission:(BOOL)needsPermission additionalActivationFlags:(id)flags;
 @end
 
+@interface UIActionSheet (OS32)
+- (id)addMediaButtonWithTitle:(NSString *)title iconView:(UIImageView *)imageView andTableIconView:(UIImageView *)imageView;
+@end
+
 static NSDictionary *schemeMapping;
 static NSInteger suppressed;
 static CGPoint lastTapCentroid;
@@ -114,8 +118,18 @@ __attribute__((visibility("hidden")))
 		UIActionSheet *actionSheet = _actionSheet = [[UIActionSheet alloc] init];
 		actionSheet.title = @"BrowserChooser";
 		actionSheet.delegate = self;
-		for (NSString *key in _orderedDisplayIdentifiers)
-			[_actionSheet addButtonWithTitle:[_displayIdentifierTitles objectForKey:key]];
+		BOOL respondsToAddMediaButton = [actionSheet respondsToSelector:@selector(addMediaButtonWithTitle:iconView:andTableIconView:)];
+		for (NSString *key in _orderedDisplayIdentifiers) {
+			NSString *title = [_displayIdentifierTitles objectForKey:key];
+			UIImage *image;
+			if (respondsToAddMediaButton && (image = [[ALApplicationList sharedApplicationList] iconOfSize:ALApplicationIconSizeSmall forDisplayIdentifier:key])) {
+				UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
+				[_actionSheet addMediaButtonWithTitle:title iconView:imageView andTableIconView:imageView];
+				[imageView release];
+			} else {
+				[_actionSheet addButtonWithTitle:title];
+			}
+		}
 		NSInteger cancelButtonIndex = [actionSheet addButtonWithTitle:@"Cancel"];
 		if (!_alertWindow) {
 			_alertWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
