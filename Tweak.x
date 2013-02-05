@@ -12,6 +12,10 @@
 - (void)applicationOpenURL:(NSURL *)url publicURLsOnly:(BOOL)only animating:(BOOL)animating sender:(id)sender additionalActivationFlag:(unsigned)additionalActivationFlag;
 @end
 
+@interface SpringBoard (iOS6)
+- (void)applicationOpenURL:(NSURL *)url withApplication:(id)application sender:(id)sender publicURLsOnly:(BOOL)publicURLsOnly animating:(BOOL)animating needsPermission:(BOOL)needsPermission additionalActivationFlags:(id)flags;
+@end
+
 static NSDictionary *schemeMapping;
 static NSInteger suppressed;
 static CGPoint lastTapCentroid;
@@ -147,7 +151,11 @@ __attribute__((visibility("hidden")))
 	if (buttonIndex >= 0 && buttonIndex != actionSheet.cancelButtonIndex && buttonIndex < [_orderedDisplayIdentifiers count]) {
 		NSURL *adjustedURL = BCApplySchemeReplacementForDisplayIdentifierOnURL([_orderedDisplayIdentifiers objectAtIndex:buttonIndex], _url);
 		suppressed++;
-		[(SpringBoard *)UIApp applicationOpenURL:adjustedURL publicURLsOnly:NO animating:YES sender:_sender additionalActivationFlag:_additionalActivationFlag];
+		if ([UIApp respondsToSelector:@selector(applicationOpenURL:publicURLsOnly:animating:sender:additionalActivationFlag:)]) {
+			[(SpringBoard *)UIApp applicationOpenURL:adjustedURL publicURLsOnly:NO animating:YES sender:_sender additionalActivationFlag:_additionalActivationFlag];
+		} else {
+			[(SpringBoard *)UIApp applicationOpenURL:adjustedURL withApplication:nil sender:_sender publicURLsOnly:NO animating:YES needsPermission:NO additionalActivationFlags:nil];
+		}
 		suppressed--;
 	}
 	_actionSheet.delegate = nil;
@@ -213,6 +221,25 @@ __attribute__((visibility("hidden")))
 		}
 	}
 	%orig;
+}
+
+- (void)_openURLCore:(NSURL *)url display:(id)display animating:(BOOL)animating sender:(id)sender additionalActivationFlags:(id)flags
+{
+	if (!suppressed && BCURLPassesPrefilter(url)) {
+		NSString *displayIdentifier = BCActiveDisplayIdentifier();
+		if (displayIdentifier)
+			url = BCApplySchemeReplacementForDisplayIdentifierOnURL(displayIdentifier, url);
+		else {
+			NSString *scheme = url.scheme;
+			if ([scheme hasPrefix:@"http"] || [scheme isEqualToString:@"x-web-search"]) {
+				BCChooserViewController *vc = [[BCChooserViewController alloc] initWithURL:url originalSender:sender additionalActivationFlag:0];
+				[vc show];
+				[vc release];
+				return;
+			}
+		}
+	}
+	%orig();
 }
 
 %end
