@@ -53,7 +53,7 @@
 };
 "com.ispirations.Cobium" = {
   http = cobium;
-  https: cobiums;
+  https = cobiums;
 };
 "com.apple.mobilesafari" = {
 };
