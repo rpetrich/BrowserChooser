@@ -7,7 +7,7 @@
   https = webs;
 };
 "com.ilegendsoft.MBrowser" = {
-  http = merc_free;
+  http = merc;
 };
 "com.opera.OperaMini" = {
   http = ohttp;
@@ -17,7 +17,7 @@
 "com.dolphin.browser.iphone" = {
   http = dolphin;
 };
-"com.dolphin.browser.ipad" = {
+"com.dolphin.browser.pad" = {
   http = dolphin;
 };
 "com.trautvetter.atomicbrowserLite" = {
@@ -48,12 +48,36 @@
   http = puffin;
   https = puffins;
 };
-"com.ilegendsoft.MBrowser" = {
-  http = "merc_free";
+"com.cloudmosa.PuffinFree" = {
+  http = puffin;
+  https = puffins;
+};
+"com.cloudmosa.Puffin" = {
+  http = puffin;
+  https = puffins;
+};
+"com.ilegendsoft.MBrowserPro" = {
+  http = "merc";
 };
 "com.ispirations.Cobium" = {
   http = cobium;
   https = cobiums;
+};
+"com.digitalpoke.360Lite" = {
+  http = "360";
+};
+"com.digitalpoke.360" = {
+  http = "360";
+};
+"com.readdle.Terra" = {
+  http = terra;
+  https = terras;
+};
+"com.19e3.DualBrowserFree" = {
+  http = dualbrowser;
+};
+"com.19e3.DualBrowser" = {
+  http = dualbrowser;
 };
 "com.apple.mobilesafari" = {
 };
