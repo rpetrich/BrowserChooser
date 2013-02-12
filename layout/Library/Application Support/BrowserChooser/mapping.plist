@@ -2,48 +2,60 @@
   http = googlechrome;
   https = googlechromes;
 };
+
 "de.icab.iCabMobile" = {
   http = web;
   https = webs;
 };
+
 "com.ilegendsoft.MBrowser" = {
   http = merc;
 };
+
 "com.opera.OperaMini" = {
   http = ohttp;
   https = ohttps;
   ftp = oftp;
 };
+
 "com.dolphin.browser.iphone" = {
   http = dolphin;
 };
 "com.dolphin.browser.pad" = {
   http = dolphin;
 };
+
 "com.trautvetter.atomicbrowserLite" = {
   http = atomiclite;
 };
+
 "com.trautvetter.atomicbrowser" = {
   http = atomic;
 };
+
 "com.diigo.iChrome" = {
   http = "ichromy://http";
   https = "ichromy://https";
 };
+
 "jp.co.lunascape.iLunascape" = {
   http = ilunascape;
   https = ilunascapes;
 };
+
 "com.hugehard.MammothIVLite" = {
   http = mammoth4lite;
 };
+
 "com.hugehard.MammothIV" = {
   http = mammoth4;
 };
+
 "com.cloudmosa.puffinfree" = {
   http = puffin;
   https = puffins;
 };
+
 "com.cloudmosa.puffin" = {
   http = puffin;
   https = puffins;
@@ -59,6 +71,7 @@
 "com.ilegendsoft.MBrowserPro" = {
   http = "merc";
 };
+
 "com.ispirations.Cobium" = {
   http = cobium;
   https = cobiums;
@@ -79,5 +92,14 @@
 "com.19e3.DualBrowser" = {
   http = dualbrowser;
 };
+
+"org.coolstar.browser" = {
+  http = "csbrowser://http%3A%2F%2F";
+  https = "csbrowser://https%3A%2F%2F";
+  ftp = "csbrowser://ftp%3A%2F%2F";
+  file = "csbrowser://file%3A%2F%2F";
+  encoded = true;
+};
+
 "com.apple.mobilesafari" = {
 };

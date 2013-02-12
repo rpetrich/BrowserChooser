@@ -62,8 +62,15 @@ static inline NSURL *BCApplySchemeReplacementForDisplayIdentifierOnURL(NSString 
 			absoluteString = [url absoluteString];
 		}
 		NSString *newScheme = [identifierMapping objectForKey:oldScheme];
-		if (newScheme)
-			url = [NSURL URLWithString:[newScheme stringByAppendingString:[absoluteString substringFromIndex:oldScheme.length]]];
+		BOOL encoded = [[identifierMapping objectForKey:@"encoded"] boolValue];
+		if (newScheme){
+			if (!encoded)
+				url = [NSURL URLWithString:[newScheme stringByAppendingString:[absoluteString substringFromIndex:oldScheme.length]]];
+			else {
+				NSString *encodedString = [(NSString *)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,(CFStringRef)[absoluteString substringFromIndex:oldScheme.length], NULL,CFSTR(":/=,!$& '()*+;[]@#?"),kCFStringEncodingUTF8) autorelease];
+				url = [NSURL URLWithString:[newScheme stringByAppendingString:encodedString]];
+			}
+		}
 	}
 	return url;
 }
