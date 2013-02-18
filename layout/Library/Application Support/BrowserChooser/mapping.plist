@@ -101,5 +101,10 @@
   encoded = true;
 };
 
+"com.litteral.crux" = {
+  http = "crux://newTab?url=http://";
+  https = "crux://newTab?url=https://";
+};
+
 "com.apple.mobilesafari" = {
 };
