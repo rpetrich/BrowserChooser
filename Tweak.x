@@ -217,10 +217,15 @@ __attribute__((visibility("hidden")))
 {
 	UIWebClip *webClip = [self webClip];
 	NSURL *url = webClip.pageURL;
-	if (BCURLPassesPrefilter(url))
-		[(SpringBoard *)UIApp applicationOpenURL:url publicURLsOnly:NO animating:YES sender:nil additionalActivationFlag:0];
-	else
+	if (BCURLPassesPrefilter(url)) {
+		if ([UIApp respondsToSelector:@selector(applicationOpenURL:publicURLsOnly:animating:sender:additionalActivationFlag:)]) {
+			[(SpringBoard *)UIApp applicationOpenURL:url publicURLsOnly:NO animating:YES sender:nil additionalActivationFlag:0];
+		} else {
+			[(SpringBoard *)UIApp applicationOpenURL:url withApplication:nil sender:nil publicURLsOnly:NO animating:YES needsPermission:NO additionalActivationFlags:nil];
+		}
+	} else {
 		%orig;
+	}
 }
 
 %end
