@@ -5,7 +5,7 @@ BrowserChooser_LIBRARIES = applist
 
 ADDITIONAL_CFLAGS = -std=c99
 SDKVERSION := 5.1
-INCLUDE_SDKVERSION := 6.0
+INCLUDE_SDKVERSION := 6.1
 TARGET_IPHONEOS_DEPLOYMENT_VERSION := 5.0
 
 include framework/makefiles/common.mk
