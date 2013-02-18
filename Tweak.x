@@ -44,7 +44,7 @@ static inline NSString *BCReplaceSafariWordInText(NSString *text)
 	return text;
 }
 
-static inline NSURL *BCApplySchemeReplacementForDisplayIdentifierOnURL(NSString *displayIdentifier, NSURL *url)
+static inline BOOL BCApplySchemeReplacementForDisplayIdentifierOnURL(NSString *displayIdentifier, NSURL *url, NSURL **outURL)
 {
 	NSDictionary *identifierMapping = [schemeMapping objectForKey:displayIdentifier];
 	if (identifierMapping) {
@@ -65,14 +65,15 @@ static inline NSURL *BCApplySchemeReplacementForDisplayIdentifierOnURL(NSString 
 		BOOL encoded = [[identifierMapping objectForKey:@"encoded"] boolValue];
 		if (newScheme){
 			if (!encoded)
-				url = [NSURL URLWithString:[newScheme stringByAppendingString:[absoluteString substringFromIndex:oldScheme.length]]];
+				*outURL = [NSURL URLWithString:[newScheme stringByAppendingString:[absoluteString substringFromIndex:oldScheme.length]]];
 			else {
 				NSString *encodedString = [(NSString *)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,(CFStringRef)[absoluteString substringFromIndex:oldScheme.length], NULL,CFSTR(":/=,!$& '()*+;[]@#?"),kCFStringEncodingUTF8) autorelease];
-				url = [NSURL URLWithString:[newScheme stringByAppendingString:encodedString]];
+				*outURL = [NSURL URLWithString:[newScheme stringByAppendingString:encodedString]];
 			}
+			return YES;
 		}
 	}
-	return url;
+	return NO;
 }
 
 static inline BOOL BCURLPassesPrefilter(NSURL *url)
@@ -170,7 +171,8 @@ __attribute__((visibility("hidden")))
 {
 	[self retain];
 	if (buttonIndex >= 0 && buttonIndex != actionSheet.cancelButtonIndex && buttonIndex < [_orderedDisplayIdentifiers count]) {
-		NSURL *adjustedURL = BCApplySchemeReplacementForDisplayIdentifierOnURL([_orderedDisplayIdentifiers objectAtIndex:buttonIndex], _url);
+		NSURL *adjustedURL = _url;
+		BCApplySchemeReplacementForDisplayIdentifierOnURL([_orderedDisplayIdentifiers objectAtIndex:buttonIndex], adjustedURL, &adjustedURL);
 		suppressed++;
 		if ([UIApp respondsToSelector:@selector(applicationOpenURL:publicURLsOnly:animating:sender:additionalActivationFlag:)]) {
 			[(SpringBoard *)UIApp applicationOpenURL:adjustedURL publicURLsOnly:NO animating:YES sender:_sender additionalActivationFlag:_additionalActivationFlag];
@@ -230,7 +232,7 @@ __attribute__((visibility("hidden")))
 	if (!suppressed && BCURLPassesPrefilter(url)) {
 		NSString *displayIdentifier = BCActiveDisplayIdentifier();
 		if (displayIdentifier)
-			url = BCApplySchemeReplacementForDisplayIdentifierOnURL(displayIdentifier, url);
+			BCApplySchemeReplacementForDisplayIdentifierOnURL(displayIdentifier, url, &url);
 		else {
 			NSString *scheme = url.scheme;
 			if ([scheme hasPrefix:@"http"] || [scheme isEqualToString:@"x-web-search"]) {
@@ -248,9 +250,11 @@ __attribute__((visibility("hidden")))
 {
 	if (!suppressed && BCURLPassesPrefilter(url)) {
 		NSString *displayIdentifier = BCActiveDisplayIdentifier();
-		if (displayIdentifier)
-			url = BCApplySchemeReplacementForDisplayIdentifierOnURL(displayIdentifier, url);
-		else {
+		if (displayIdentifier) {
+			if (BCApplySchemeReplacementForDisplayIdentifierOnURL(displayIdentifier, url, &url)) {
+				display = [[%c(SBApplicationController) sharedInstance] applicationWithDisplayIdentifier:displayIdentifier] ?: display;
+			}
+		} else {
 			NSString *scheme = url.scheme;
 			if ([scheme hasPrefix:@"http"] || [scheme isEqualToString:@"x-web-search"]) {
 				BCChooserViewController *vc = [[BCChooserViewController alloc] initWithURL:url originalSender:sender additionalActivationFlag:0];
