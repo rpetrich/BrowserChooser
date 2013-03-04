@@ -106,5 +106,10 @@
   https = "crux://newTab?url=https://";
 };
 
+"com.lazarSidor.1password" = {
+  http = "ophttp://";
+  https = "ophttps://";
+};
+
 "com.apple.mobilesafari" = {
 };
