@@ -242,7 +242,7 @@ __attribute__((visibility("hidden")))
 			NSString *scheme = url.scheme;
 			if ([scheme hasPrefix:@"http"] || [scheme isEqualToString:@"x-web-search"]) {
 				BCChooserViewController *vc = [[BCChooserViewController alloc] initWithURL:url originalSender:sender additionalActivationFlag:additionalActivationFlag];
-				[vc show];
+				[vc performSelector:@selector(show) withObject:nil afterDelay:0.0];
 				[vc release];
 				return;
 			}
@@ -263,7 +263,7 @@ __attribute__((visibility("hidden")))
 			NSString *scheme = url.scheme;
 			if ([scheme hasPrefix:@"http"] || [scheme isEqualToString:@"x-web-search"]) {
 				BCChooserViewController *vc = [[BCChooserViewController alloc] initWithURL:url originalSender:sender additionalActivationFlag:0];
-				[vc show];
+				[vc performSelector:@selector(show) withObject:nil afterDelay:0.0];
 				[vc release];
 				return;
 			}
