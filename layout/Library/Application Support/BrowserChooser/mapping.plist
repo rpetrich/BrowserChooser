@@ -111,5 +111,9 @@
   https = "ophttps://";
 };
 
+"com.skyfire.browser" = {
+  http = "skyfire://";
+};
+
 "com.apple.mobilesafari" = {
 };
