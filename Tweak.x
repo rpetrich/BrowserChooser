@@ -16,6 +16,11 @@
 - (void)applicationOpenURL:(NSURL *)url withApplication:(id)application sender:(id)sender publicURLsOnly:(BOOL)publicURLsOnly animating:(BOOL)animating needsPermission:(BOOL)needsPermission additionalActivationFlags:(id)flags;
 @end
 
+@interface SpringBoard (iOS7)
+- (void)_applicationOpenURL:(NSURL *)url withApplication:(id)application sender:(id)sender publicURLsOnly:(BOOL)publicOnly animating:(BOOL)animating additionalActivationFlags:(id)activationFlags activationHandler:(id)activationHandler;
+- (void)applicationOpenURL:(id)url withApplication:(id)application sender:(id)sender publicURLsOnly:(BOOL)only animating:(BOOL)animating needsPermission:(BOOL)permission additionalActivationFlags:(id)flags activationHandler:(id)handler;
+@end
+
 @interface UIActionSheet (OS32)
 - (id)addMediaButtonWithTitle:(NSString *)title iconView:(UIImageView *)imageView andTableIconView:(UIImageView *)imageView;
 @end
@@ -87,16 +92,18 @@ __attribute__((visibility("hidden")))
 	NSURL *_url;
 	id _sender;
 	unsigned _additionalActivationFlag;
+	id _objectAdditionalFlags;
 	NSDictionary *_displayIdentifierTitles;
 	NSArray *_orderedDisplayIdentifiers;
 	UIActionSheet *_actionSheet;
 	UIWindow *_alertWindow;
+	id _activationHandler;
 }
 @end
 
 @implementation BCChooserViewController
 
-- (id)initWithURL:(NSURL *)url originalSender:(id)sender additionalActivationFlag:(unsigned)additionalActivationFlag
+- (id)initWithURL:(NSURL *)url originalSender:(id)sender additionalActivationFlag:(unsigned)additionalActivationFlag objectAdditionalFlags:(id)objectAdditionalFlags activationHandler:(id)activationHandler
 {
 	if ((self = [super init])) {
 		_url = [url retain];
@@ -104,6 +111,8 @@ __attribute__((visibility("hidden")))
 		_additionalActivationFlag = additionalActivationFlag;
 		_displayIdentifierTitles = [[[ALApplicationList sharedApplicationList] applicationsFilteredUsingPredicate:[NSPredicate predicateWithFormat:@"isBrowserChooserBrowser = TRUE"]] copy];
 		_orderedDisplayIdentifiers = [[_displayIdentifierTitles allKeys] retain];
+		_objectAdditionalFlags = [objectAdditionalFlags retain];
+		_activationHandler = [activationHandler copy];
 		self.wantsFullScreenLayout = YES;
 	}
 	return self;
@@ -111,6 +120,8 @@ __attribute__((visibility("hidden")))
 
 - (void)dealloc
 {
+	[_activationHandler release];
+	[_objectAdditionalFlags release];
 	[_actionSheet release];
 	[_alertWindow release];
 	[_orderedDisplayIdentifiers release];
@@ -172,9 +183,12 @@ __attribute__((visibility("hidden")))
 	[self retain];
 	if (buttonIndex >= 0 && buttonIndex != actionSheet.cancelButtonIndex && buttonIndex < [_orderedDisplayIdentifiers count]) {
 		NSURL *adjustedURL = _url;
-		BCApplySchemeReplacementForDisplayIdentifierOnURL([_orderedDisplayIdentifiers objectAtIndex:buttonIndex], adjustedURL, &adjustedURL);
+		NSString *displayIdentifier = [_orderedDisplayIdentifiers objectAtIndex:buttonIndex];
+		BCApplySchemeReplacementForDisplayIdentifierOnURL(displayIdentifier, adjustedURL, &adjustedURL);
 		suppressed++;
-		if ([UIApp respondsToSelector:@selector(applicationOpenURL:publicURLsOnly:animating:sender:additionalActivationFlag:)]) {
+		if ([UIApp respondsToSelector:@selector(applicationOpenURL:withApplication:sender:publicURLsOnly:animating:needsPermission:additionalActivationFlags:activationHandler:)]) {
+			[(SpringBoard *)UIApp applicationOpenURL:adjustedURL publicURLsOnly:NO];
+		} else if ([UIApp respondsToSelector:@selector(applicationOpenURL:publicURLsOnly:animating:sender:additionalActivationFlag:)]) {
 			[(SpringBoard *)UIApp applicationOpenURL:adjustedURL publicURLsOnly:NO animating:YES sender:_sender additionalActivationFlag:_additionalActivationFlag];
 		} else {
 			[(SpringBoard *)UIApp applicationOpenURL:adjustedURL withApplication:nil sender:_sender publicURLsOnly:NO animating:YES needsPermission:NO additionalActivationFlags:nil];
@@ -232,44 +246,83 @@ __attribute__((visibility("hidden")))
 
 %hook SpringBoard
 
-- (void)applicationOpenURL:(NSURL *)url publicURLsOnly:(BOOL)only animating:(BOOL)animating sender:(id)sender additionalActivationFlag:(unsigned)additionalActivationFlag
+typedef enum {
+	BCNoMappingApplied,
+	BCMappedToUIElement,
+	BCMappedToNewApplication,
+} BCMappingApplied;
+
+static inline BCMappingApplied BCApplyMappingAndOptionallyConsumeURL(NSURL **url, id *display, id sender, unsigned additionalActivationFlag, id objectAdditionalFlags, id activationHandler)
 {
-	if (!suppressed && BCURLPassesPrefilter(url)) {
+	if (!suppressed && BCURLPassesPrefilter(*url)) {
 		NSString *displayIdentifier = BCActiveDisplayIdentifier();
-		if (displayIdentifier)
-			BCApplySchemeReplacementForDisplayIdentifierOnURL(displayIdentifier, url, &url);
-		else {
-			NSString *scheme = url.scheme;
+		if (displayIdentifier) {
+			if (BCApplySchemeReplacementForDisplayIdentifierOnURL(displayIdentifier, *url, url)) {
+				if (display) {
+					SBApplication *newDisplay = [[%c(SBApplicationController) sharedInstance] applicationWithDisplayIdentifier:displayIdentifier];
+					if (newDisplay) {
+						*display = newDisplay;
+					}
+				}
+				return BCMappedToNewApplication;
+			}
+		} else {
+			NSString *scheme = (*url).scheme;
 			if ([scheme hasPrefix:@"http"] || [scheme isEqualToString:@"x-web-search"]) {
-				BCChooserViewController *vc = [[BCChooserViewController alloc] initWithURL:url originalSender:sender additionalActivationFlag:additionalActivationFlag];
+				BCChooserViewController *vc = [[BCChooserViewController alloc] initWithURL:*url originalSender:sender additionalActivationFlag:additionalActivationFlag objectAdditionalFlags:objectAdditionalFlags activationHandler:activationHandler];
 				[vc performSelector:@selector(show) withObject:nil afterDelay:0.0];
 				[vc release];
-				return;
+				return BCMappedToUIElement;
 			}
 		}
 	}
-	%orig;
+	return BCNoMappingApplied;
+}
+
+// iOS 5/6
+
+- (void)applicationOpenURL:(NSURL *)url publicURLsOnly:(BOOL)only animating:(BOOL)animating sender:(id)sender additionalActivationFlag:(unsigned)additionalActivationFlag
+{
+	if (BCApplyMappingAndOptionallyConsumeURL(&url, NULL, sender, additionalActivationFlag, nil, nil) != BCNoMappingApplied)
+		%orig();
 }
 
 - (void)_openURLCore:(NSURL *)url display:(id)display animating:(BOOL)animating sender:(id)sender additionalActivationFlags:(id)flags
 {
-	if (!suppressed && BCURLPassesPrefilter(url)) {
-		NSString *displayIdentifier = BCActiveDisplayIdentifier();
-		if (displayIdentifier) {
-			if (BCApplySchemeReplacementForDisplayIdentifierOnURL(displayIdentifier, url, &url)) {
-				display = [[%c(SBApplicationController) sharedInstance] applicationWithDisplayIdentifier:displayIdentifier] ?: display;
-			}
-		} else {
-			NSString *scheme = url.scheme;
-			if ([scheme hasPrefix:@"http"] || [scheme isEqualToString:@"x-web-search"]) {
-				BCChooserViewController *vc = [[BCChooserViewController alloc] initWithURL:url originalSender:sender additionalActivationFlag:0];
-				[vc performSelector:@selector(show) withObject:nil afterDelay:0.0];
-				[vc release];
-				return;
-			}
-		}
+	if (BCApplyMappingAndOptionallyConsumeURL(&url, &display, sender, 0, flags, nil) != BCNoMappingApplied)
+		%orig();
+}
+
+// iOS 7
+
+- (void)_applicationOpenURL:(NSURL *)url withApplication:(id)display sender:(id)sender publicURLsOnly:(BOOL)publicOnly animating:(BOOL)animating additionalActivationFlags:(id)activationFlags activationHandler:(id)activationHandler
+{
+	switch (BCApplyMappingAndOptionallyConsumeURL(&url, &display, sender, 0, activationFlags, activationHandler)) {
+		case BCNoMappingApplied:
+			return %orig();
+		case BCMappedToUIElement:
+			return;
+		case BCMappedToNewApplication:
+			suppressed++;
+			[self applicationOpenURL:url publicURLsOnly:NO];
+			suppressed--;
+			return;
 	}
-	%orig();
+}
+
+- (void)_openURLCore:(NSURL *)url display:(id)display animating:(BOOL)animating sender:(id)sender additionalActivationFlags:(id)activationFlags activationHandler:(id)activationHandler
+{
+	switch (BCApplyMappingAndOptionallyConsumeURL(&url, &display, sender, 0, activationFlags, activationHandler)) {
+		case BCNoMappingApplied:
+			return %orig();
+		case BCMappedToUIElement:
+			return;
+		case BCMappedToNewApplication:
+			suppressed++;
+			[self applicationOpenURL:url publicURLsOnly:NO];
+			suppressed--;
+			return;
+	}
 }
 
 %end
