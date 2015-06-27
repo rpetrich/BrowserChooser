@@ -2,7 +2,7 @@ Package: com.rpetrich.browserchooser
 Priority: optional
 Section: System
 Architecture: iphoneos-arm
-Version: 1.0.4
+Version: 1.0.5
 Description: Switch default browsers between Google Chrome, Opera Mini, iCab Mobile, Dolphing Browser, Atomic Browser, Diigo, iLunascape, MammothIV, Puffin, Mercury, Crux and Safari
 Name: BrowserChooser
 Depends: firmware (>= 5), mobilesubstrate (>= 0.9.5001), applist (>= 1.5.7), preferenceloader (>= 2.2.2)
