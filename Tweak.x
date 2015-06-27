@@ -21,6 +21,10 @@
 - (void)applicationOpenURL:(id)url withApplication:(id)application sender:(id)sender publicURLsOnly:(BOOL)only animating:(BOOL)animating needsPermission:(BOOL)permission additionalActivationFlags:(id)flags activationHandler:(id)handler;
 @end
 
+@interface SpringBoard (iOS8)
+- (void)applicationOpenURL:(NSURL *)arg1 withApplication:(id)application sender:(id)sender publicURLsOnly:(BOOL)publicOnly animating:(BOOL)animating needsPermission:(BOOL)needsPermission activationSettings:(id)activationSettings withResult:(id)resultHandler;
+@end
+
 @interface UIActionSheet (OS32)
 - (id)addMediaButtonWithTitle:(NSString *)title iconView:(UIImageView *)imageView andTableIconView:(UIImageView *)imageView;
 @end
@@ -186,7 +190,9 @@ __attribute__((visibility("hidden")))
 		NSString *displayIdentifier = [_orderedDisplayIdentifiers objectAtIndex:buttonIndex];
 		BCApplySchemeReplacementForDisplayIdentifierOnURL(displayIdentifier, adjustedURL, &adjustedURL);
 		suppressed++;
-		if ([UIApp respondsToSelector:@selector(applicationOpenURL:withApplication:sender:publicURLsOnly:animating:needsPermission:additionalActivationFlags:activationHandler:)]) {
+		if ([UIApp respondsToSelector:@selector(applicationOpenURL:withApplication:sender:publicURLsOnly:animating:needsPermission:activationSettings:withResult:)]) {
+			[(SpringBoard *)UIApp applicationOpenURL:adjustedURL withApplication:nil sender:_sender publicURLsOnly:NO animating:YES needsPermission:NO activationSettings:_objectAdditionalFlags withResult:nil];
+		} else if ([UIApp respondsToSelector:@selector(applicationOpenURL:withApplication:sender:publicURLsOnly:animating:needsPermission:additionalActivationFlags:activationHandler:)]) {
 			[(SpringBoard *)UIApp applicationOpenURL:adjustedURL publicURLsOnly:NO];
 		} else if ([UIApp respondsToSelector:@selector(applicationOpenURL:publicURLsOnly:animating:sender:additionalActivationFlag:)]) {
 			[(SpringBoard *)UIApp applicationOpenURL:adjustedURL publicURLsOnly:NO animating:YES sender:_sender additionalActivationFlag:_additionalActivationFlag];
@@ -313,6 +319,23 @@ static inline BCMappingApplied BCApplyMappingAndOptionallyConsumeURL(NSURL **url
 - (void)_openURLCore:(NSURL *)url display:(id)display animating:(BOOL)animating sender:(id)sender additionalActivationFlags:(id)activationFlags activationHandler:(id)activationHandler
 {
 	switch (BCApplyMappingAndOptionallyConsumeURL(&url, &display, sender, 0, activationFlags, activationHandler)) {
+		case BCNoMappingApplied:
+			return %orig();
+		case BCMappedToUIElement:
+			return;
+		case BCMappedToNewApplication:
+			suppressed++;
+			[self applicationOpenURL:url publicURLsOnly:NO];
+			suppressed--;
+			return;
+	}
+}
+
+// iOS 8
+
+- (void)_openURLCore:(NSURL *)url display:(id)display animating:(BOOL)animating sender:(id)sender activationSettings:(id)activationSettings withResult:(id)resultHandler
+{
+	switch (BCApplyMappingAndOptionallyConsumeURL(&url, &display, sender, 0, activationSettings, resultHandler)) {
 		case BCNoMappingApplied:
 			return %orig();
 		case BCMappedToUIElement:
