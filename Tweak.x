@@ -1,33 +1,7 @@
-#import <SpringBoard/SpringBoard.h>
-#import <UIKit/UIKit2.h>
+#import <UIKit/UIKit.h>
 #import <AppList/ALApplicationList.h>
 
-@interface NSURL (iOS5)
-- (BOOL)isStoreServicesURL;
-- (BOOL)gamecenterURL;
-- (BOOL)appleStoreURL;
-@end
-
-@interface SpringBoard (iOS5)
-- (void)applicationOpenURL:(NSURL *)url publicURLsOnly:(BOOL)only animating:(BOOL)animating sender:(id)sender additionalActivationFlag:(unsigned)additionalActivationFlag;
-@end
-
-@interface SpringBoard (iOS6)
-- (void)applicationOpenURL:(NSURL *)url withApplication:(id)application sender:(id)sender publicURLsOnly:(BOOL)publicURLsOnly animating:(BOOL)animating needsPermission:(BOOL)needsPermission additionalActivationFlags:(id)flags;
-@end
-
-@interface SpringBoard (iOS7)
-- (void)_applicationOpenURL:(NSURL *)url withApplication:(id)application sender:(id)sender publicURLsOnly:(BOOL)publicOnly animating:(BOOL)animating additionalActivationFlags:(id)activationFlags activationHandler:(id)activationHandler;
-- (void)applicationOpenURL:(id)url withApplication:(id)application sender:(id)sender publicURLsOnly:(BOOL)only animating:(BOOL)animating needsPermission:(BOOL)permission additionalActivationFlags:(id)flags activationHandler:(id)handler;
-@end
-
-@interface SpringBoard (iOS8)
-- (void)applicationOpenURL:(NSURL *)arg1 withApplication:(id)application sender:(id)sender publicURLsOnly:(BOOL)publicOnly animating:(BOOL)animating needsPermission:(BOOL)needsPermission activationSettings:(id)activationSettings withResult:(id)resultHandler;
-@end
-
-@interface UIActionSheet (OS32)
-- (id)addMediaButtonWithTitle:(NSString *)title iconView:(UIImageView *)imageView andTableIconView:(UIImageView *)imageView;
-@end
+#import "PrivateAPIs.h"
 
 static NSDictionary *schemeMapping;
 static NSInteger suppressed;
