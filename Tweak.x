@@ -121,6 +121,9 @@ __attribute__((visibility("hidden")))
 			NSString *title = [_displayIdentifierTitles objectForKey:key];
 			UIImage *image;
 			if (respondsToAddMediaButton && (image = [[ALApplicationList sharedApplicationList] iconOfSize:ALApplicationIconSizeSmall forDisplayIdentifier:key])) {
+				if ([image respondsToSelector:@selector(imageWithRenderingMode:)]) {
+					image = [image imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+				}
 				UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
 				[_actionSheet addMediaButtonWithTitle:title iconView:imageView andTableIconView:imageView];
 				[imageView release];
