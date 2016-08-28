@@ -200,7 +200,8 @@ __attribute__((visibility("hidden")))
 %new(c@:)
 - (BOOL)isBrowserChooserBrowser
 {
-	return [schemeMapping objectForKey:self.displayIdentifier] != nil;
+	NSString *displayIdentifier = [self respondsToSelector:@selector(displayIdentifier)] ? self.displayIdentifier : self.bundleIdentifier;
+	return [schemeMapping objectForKey:displayIdentifier] != nil;
 }
 
 %end
@@ -239,7 +240,8 @@ static inline BCMappingApplied BCApplyMappingAndOptionallyConsumeURL(NSURL **url
 		if (displayIdentifier) {
 			if (BCApplySchemeReplacementForDisplayIdentifierOnURL(displayIdentifier, *url, url)) {
 				if (display) {
-					SBApplication *newDisplay = [[%c(SBApplicationController) sharedInstance] applicationWithDisplayIdentifier:displayIdentifier];
+					SBApplicationController *applicationController = [%c(SBApplicationController) sharedInstance];
+					SBApplication *newDisplay = [applicationController respondsToSelector:@selector(applicationWithDisplayIdentifier:)] ? [applicationController applicationWithDisplayIdentifier:displayIdentifier] : [applicationController applicationWithBundleIdentifier:displayIdentifier];
 					if (newDisplay) {
 						*display = newDisplay;
 					}
@@ -316,7 +318,13 @@ static inline BCMappingApplied BCApplyMappingAndOptionallyConsumeURL(NSURL **url
 			return;
 		case BCMappedToNewApplication:
 			suppressed++;
-			[self applicationOpenURL:url publicURLsOnly:NO];
+			if ([self respondsToSelector:@selector(applicationOpenURL:withApplication:sender:publicURLsOnly:animating:needsPermission:activationSettings:withResult:)]) {
+				[self applicationOpenURL:url withApplication:nil sender:sender publicURLsOnly:NO animating:YES needsPermission:NO activationSettings:activationSettings withResult:nil];
+			} else if ([self respondsToSelector:@selector(applicationOpenURL:publicURLsOnly:)]) {
+				[self applicationOpenURL:url publicURLsOnly:NO];
+			} else {
+				[self openURL:url];
+			}
 			suppressed--;
 			return;
 	}
