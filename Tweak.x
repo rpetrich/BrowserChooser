@@ -6,6 +6,7 @@
 static NSDictionary *schemeMapping;
 static NSInteger suppressed;
 static CGPoint lastTapCentroid;
+static NSInteger shouldBreadcrumb;
 
 static inline NSString *BCActiveDisplayIdentifier(void)
 {
@@ -165,7 +166,11 @@ __attribute__((visibility("hidden")))
 		BCApplySchemeReplacementForDisplayIdentifierOnURL(displayIdentifier, adjustedURL, &adjustedURL);
 		suppressed++;
 		if ([UIApp respondsToSelector:@selector(applicationOpenURL:withApplication:sender:publicURLsOnly:animating:needsPermission:activationSettings:withResult:)]) {
+			shouldBreadcrumb++;
 			[(SpringBoard *)UIApp applicationOpenURL:adjustedURL withApplication:nil sender:_sender publicURLsOnly:NO animating:YES needsPermission:NO activationSettings:_objectAdditionalFlags withResult:nil];
+			dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC / 10), dispatch_get_main_queue(), ^{
+				shouldBreadcrumb--;
+			});
 		} else if ([UIApp respondsToSelector:@selector(applicationOpenURL:withApplication:sender:publicURLsOnly:animating:needsPermission:additionalActivationFlags:activationHandler:)]) {
 			[(SpringBoard *)UIApp applicationOpenURL:adjustedURL publicURLsOnly:NO];
 		} else if ([UIApp respondsToSelector:@selector(applicationOpenURL:publicURLsOnly:animating:sender:additionalActivationFlag:)]) {
@@ -318,6 +323,7 @@ static inline BCMappingApplied BCApplyMappingAndOptionallyConsumeURL(NSURL **url
 			return;
 		case BCMappedToNewApplication:
 			suppressed++;
+			shouldBreadcrumb++;
 			if ([self respondsToSelector:@selector(applicationOpenURL:withApplication:sender:publicURLsOnly:animating:needsPermission:activationSettings:withResult:)]) {
 				[self applicationOpenURL:url withApplication:nil sender:sender publicURLsOnly:NO animating:YES needsPermission:NO activationSettings:activationSettings withResult:nil];
 			} else if ([self respondsToSelector:@selector(applicationOpenURL:publicURLsOnly:)]) {
@@ -325,9 +331,21 @@ static inline BCMappingApplied BCApplyMappingAndOptionallyConsumeURL(NSURL **url
 			} else {
 				[self openURL:url];
 			}
+			dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC / 10), dispatch_get_main_queue(), ^{
+				shouldBreadcrumb--;
+			});
 			suppressed--;
 			return;
 	}
+}
+
+%end
+
+%hook SBMainDisplaySceneManager
+
+- (BOOL)_shouldBreadcrumbApplication:(id)application withTransitionContext:(id)transitionContext
+{
+	return %orig() || shouldBreadcrumb;
 }
 
 %end
