@@ -1,7 +1,7 @@
 entry = {
   bundle = AppList;
   cell = PSLinkCell;
-  icon = "/Applications/Preferences.app/Safari.png";
+  icon = "/Library/PreferenceLoader/Preferences/BrowserChooser.png";
   isController = 1;
   label = BrowserChooser;
   ALSettingsPath = "/var/mobile/Library/Preferences/com.rpetrich.browserchooser.plist";
